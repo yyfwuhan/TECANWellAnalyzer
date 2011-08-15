@@ -1,0 +1,40 @@
+TECAN Well Analyzer: A Python Script for Calculating 
+Doubling Times from TECAN Infinite Reader Data
+
+Derek Park
+Derek.park@yale.edu 
+15/8/2011
+
+	The TECAN infinite microplate reader allows quick parallel measurement of cell growth curves in different dilutions and media. This python script is designed to measure the doubling times of each well and put the output as a file. The source code itself is heavily annotated with file formats, parameters, etc. specified in commented text. The purpose of this paper is to outline the analysis method used in order to determine the doubling rates. Future users can then either modify the script and/or translate the general method into another coding language that better suits their purposes.
+
+
+The Typical Growth Curve and Removing Artifacts
+
+
+ 
+Figure 1: An example of the typical growth curve. 
+
+	Figure 1 shows an example of the ‘typical’ growth curve. At the start of measurement, the OD increases exponentially very quickly, reaching a peak followed by a sudden drop. This pattern seems to be an artifact of the measuring process. While the exact reason has not been isolated, the reason for such a spike and drop seems to be bubbles that may develop between the oil and media due to the shake cycles before each measurement. 
+	Regardless of their original cause, though, the artifact’s peak is followed by a very  sudden drop. After this drop, is the ‘true’ growth curve: the logistic increase in OD up to a carrying capacity. This is the region of interest and the subset of measurements from which doubling times will be calculated. Thus, the first part of analyzing the growth curve consists of going through the data for each well and determining the first timepoint after the artifact.
+	To accomplish this task, the Analyzer class in the script has the createStartTimepoints() method. This method is called by the script in the event that a file with the starting timepoints for each well is not already in place (file location is specified by DROP_INDECES_FILE_NAME parameter). The method plots the beginning of each well’s measurements, for example from the 1st to the 100th measurement. It then searches this subrange for the maximum OD value. If the maximum occurs towards the end of the data series, then it is most likely not an artifact. However, if the maximum OD is just in the middle of the subrange, then it is probably the ‘peak’ that is observed on the graph and so can indicate when the artifact ends. 
+	This is a fairly crude ‘guess’ by the script as to where the artifact (if there is one) starts and stops. However, the script gives the ultimate control of what to designate as the “start” timepoint of the data series to the user. This makes this initial artifact removal process the most labor-intensive part of the data analysis just because it requires manual study of the data for each of the 96 wells. This only needs to be done once per dataset, though, since the script saves the preferences the user makes in a text file. The next time the script is run, the data can just be read from file. 
+
+Identifying and Removing the Basal OD
+
+	For the exponential phase of cell growth, the curves are assumed to grow according to:
+					OD_600=A(2^(t/t_2 ) )+ B                      (1)
+
+Where t2 = the doubling time and B is the basal OD level. The desire is to log-transform the OD600 values so that the doubling time can be calculated as the reciprocal slope. However, this can only be done if the basal OD is subtracted. 
+	To determine the basal OD, the script takes a subset of the first 10 measurements starting from the start timepoint. The basal OD is taken as the minimum in this range of values. In the doubling time calculation, this basal OD is subtracted from every OD600 measurement to return a pure exponential data set.
+	This is not a very sophisticated method of determining the basal OD, though, and can present numerous problems. Namely, if the variance in measurements is high, the minimum may not represent a real measure of the basal OD. Nonetheless, the minimum of the range is preferred to the mean or median because it ensures that all of the data values are >= 0 when the basal OD is subtracted from them. This prevents errors when the log transform is taken (see below).  
+
+
+
+Calculating the Doubling Time
+
+	After subtracting the base and log transforming the data, the doubling rate can be obtained from:
+
+				log_2⁡〖OD_600 〗=t/t_2 +log_2⁡A   		(2)
+
+	The doubling time, t2 can be found as the reciprocal of the slope of the graph. However, python’s log transform function returns negative infinity as the log of 0 and ‘NaN’ as the log of negative numbers. The script, therefore, before it takes the log transform, searches the data set for numbers <= 0 and replaces them with 10E-9. Most of these values occur before the starting timepoint (i.e. in the artifact), so it is not a large problem since doubling times from this region will be discarded.
+	The actual doubling times are calculated from the slope of a linear regression in a sliding window on the dataset. The size of the window can be set via the parameter DOUBLING_WINDOW_SIZE. Finally, the script calculates the doubling time for every window for every well. It saves the data to a tab-delimited text file. 
