@@ -1,0 +1,5 @@
+*.txt
+!EXAMPLE/*.txt
+*.pdf
+*~
+*.pyc

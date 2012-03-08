@@ -233,7 +233,7 @@ class Analyzer:
 		dataToBePlotted = currWell.getMeasurements(start,end) #The exception case where start and end are not specified is handled by the getMeasurements method
 		
 		
-		#now get the x axis values corresponding tot he measurements
+		#now get the x axis values corresponding to the measurements
 		xAxisValues = []
 		if start == -1 and end == -1:
 			xAxisValues = self.timesHrs
@@ -266,7 +266,6 @@ class Analyzer:
 	# If there is no file, it calls createStartTimepoints() to build the list.
 	def loadStartTimepoints(self,fileName):
 		
-		
 		try:
 			file = open(fileName)
 			
@@ -285,12 +284,9 @@ class Analyzer:
 						n = len(self.OD600_WELLS)
 					
 					n += 1
-			
-			
 				
 			print "Indeces read and loaded from file ", fileName	
 				
-			
 		except IOError:
 			print "Failure to load file. Creating new one"
 			self.createStartTimepoints(fileName)
@@ -631,22 +627,22 @@ def run():
 		
 	#This is the COMPLETE location of the tab delimited text file for the OD600 data values.
 	#For information on proper formatting of this file, see the documentation for the load_OD600() method
-	OD_600_DATA_FILE_NAME = "C:\Users\Derek\Research\Taddei Lab\Growth Curves\Test\OD600_Values.txt"
+	OD_600_DATA_FILE_NAME = "/Users/yyfwuhan/Projects/2011-TaMaRa-growth-curve/TECANWellAnalyzer/EXAMPLE/OD600_Values.txt"
 		
 	#This is the location of the tab delimited text file for the strain name and concentration for the wells
 	#See the annotation in the load_OD600() method for how to properly format the file
-	WELL_LABEL_FILE_NAME = "C:\Users\Derek\Research\Taddei Lab\Growth Curves\Test\well-labels_7-14-11.txt"
+	WELL_LABEL_FILE_NAME = "/Users/yyfwuhan/Projects/2011-TaMaRa-growth-curve/TECANWellAnalyzer/EXAMPLE/well-labels_7-14-11.txt"
 
 	#This is the location of the file that has the measurement indeces at which the artificial peak at the beginnign
 	#of growth curves ends
-	DROP_INDECES_FILE_NAME = "C:\Users\Derek\Research\Taddei Lab\Growth Curves\Test\Starts_After_Drops.txt"
+	DROP_INDECES_FILE_NAME = "/Users/yyfwuhan/Projects/2011-TaMaRa-growth-curve/TECANWellAnalyzer/EXAMPLE/Starts_After_Drops.txt"
 
 
 	#This is the window size when calculating the doubling time. 
-	DOUBLING_WINDOW_SIZE = 12
+	DOUBLING_WINDOW_SIZE = 40
 
 	#This is the file name for printing the doubling times to file
-	DOUBLING_FILE_NAME = "C:\Users\Derek\Research\Taddei Lab\Growth Curves\Test\Doubling Times Compiled.txt"
+	DOUBLING_FILE_NAME = "/Users/yyfwuhan/Projects/2011-TaMaRa-growth-curve/TECANWellAnalyzer/EXAMPLE/Doubling_time.txt"
 
 	a = Analyzer(OD_600_DATA_FILE_NAME, WELL_LABEL_FILE_NAME)
 
